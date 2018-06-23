@@ -3,6 +3,7 @@ package com.nehcam.betterreaction;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.nehcam.betterreaction.fragments.MainFragment;
 import com.nehcam.betterreaction.interfaces.SwitchCallback;
 
 import java.util.Random;
@@ -13,7 +14,7 @@ public class StartTask extends AsyncTask<Void, Void, Void> {
 
     private SwitchCallback<Long> callback;
 
-    StartTask(SwitchCallback<Long> callback) {
+    public StartTask(SwitchCallback<Long> callback) {
         this.callback = callback;
     }
 
@@ -41,9 +42,9 @@ public class StartTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void noResult) {
-        if (callback != null && callback instanceof MainActivity) {
+        if (callback != null && callback instanceof MainFragment) {
             callback.finishSwitching();
-            ((MainActivity) callback).doChange(MainActivity.FLAG.AUTO);
+            ((MainFragment) callback).doChange(MainFragment.FLAG.AUTO);
         }
     }
 }

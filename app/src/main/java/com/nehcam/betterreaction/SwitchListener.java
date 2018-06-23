@@ -2,12 +2,17 @@ package com.nehcam.betterreaction;
 
 import android.view.View;
 
+import com.nehcam.betterreaction.fragments.MainFragment;
+
 public class SwitchListener implements View.OnClickListener {
-    private MainActivity context;
+    private final MainFragment callback;
+
+    public SwitchListener(MainFragment fragment) {
+        this.callback = fragment;
+    }
 
     @Override
     public void onClick(View v) {
-        if (context == null) {context = (MainActivity) v.getContext();}
-        context.doChange(MainActivity.FLAG.MANUAL);
+        callback.doChange(MainFragment.FLAG.MANUAL);
     }
 }
