@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nehcam.betterreaction.BaseFragment;
+import com.nehcam.betterreaction.MainActivity;
 import com.nehcam.betterreaction.R;
 import com.nehcam.betterreaction.StartTask;
 import com.nehcam.betterreaction.SwitchListener;
@@ -20,8 +21,8 @@ public class MainFragment extends BaseFragment implements SwitchCallback<Long> {
     private StartTask startTask;
     private View background;
 
-    private long startTime;
-    private long scoreT;
+    private long startTime = 0;
+    private long scoreT = 0;
     private long total = 0;
     private int tries = 0;
 
@@ -70,28 +71,28 @@ public class MainFragment extends BaseFragment implements SwitchCallback<Long> {
             if (color == getResources().getColor(R.color.blue)) {
                 getStartTask().execute();
 
-                changeUI(MainFragment.COLOR.RED);
+                changeUI(MainFragment.COLOR.RED, FLAG.NORMAL);
             } else if (color == getResources().getColor(R.color.red)) {
-                if (flag == MainFragment.FLAG.AUTO) {
+                if (flag == MainFragment.FLAG.NORMAL) {
                     this.startTime = new Date().getTime();
 
-                    changeUI(MainFragment.COLOR.GREEN);
-                } else if (flag == MainFragment.FLAG.MANUAL) {
+                    changeUI(MainFragment.COLOR.GREEN, FLAG.NORMAL);
+                } else if (flag == MainFragment.FLAG.ABNORMAL) {
                     finishSwitching();
 
-                    changeUI(MainFragment.COLOR.BLUE);
+                    changeUI(MainFragment.COLOR.BLUE, FLAG.ABNORMAL);
                 }
             } else if (color == getResources().getColor(R.color.green)) {
                 scoreT = new Date().getTime() - startTime;
                 total += scoreT;
-                tries++;
+                if (tries++ == 5) ((MainActivity) activity).recordScore(total / tries + "");
 
-                changeUI(MainFragment.COLOR.BLUE);
+                changeUI(MainFragment.COLOR.BLUE, FLAG.NORMAL);
             }
         }
     }
 
-    private void changeUI(MainFragment.COLOR color) {
+    private void changeUI(MainFragment.COLOR color, MainFragment.FLAG flag) {
         TextView tapV = activity.findViewById(R.id.tap);
         TextView descV = activity.findViewById(R.id.description);
 
@@ -102,14 +103,18 @@ public class MainFragment extends BaseFragment implements SwitchCallback<Long> {
         if (color == MainFragment.COLOR.BLUE) {
             background.setBackground(new ColorDrawable(getResources().getColor(R.color.blue)));
 
-            tapV.setText(getResources().getString(R.string.tap_to_continue));
-            descV.setText(getResources().getString(R.string.description));
+            if (flag == FLAG.NORMAL) {
+                tapV.setText(getResources().getString(R.string.tap_to_continue));
+                descV.setText(getResources().getString(R.string.description));
 
-            scoreV.setText(Long.toString(scoreT) + " ms");
-            triesV.setText(String.valueOf(tries));
-            averScoreV.setText(Long.toString(total / tries));
+                scoreV.setText(Long.toString(scoreT) + " ms");
+                triesV.setText(String.valueOf(tries));
+                averScoreV.setText(Long.toString(total / tries));
 
-            scoreV.setVisibility(View.VISIBLE);
+                scoreV.setVisibility(View.VISIBLE);
+            } else if (flag == FLAG.ABNORMAL) {
+                tapV.setText(getResources().getString(R.string.too_soon));
+            }
         } else if (color == MainFragment.COLOR.RED) {
             background.setBackground(new ColorDrawable(getResources().getColor(R.color.red)));
 
@@ -126,7 +131,7 @@ public class MainFragment extends BaseFragment implements SwitchCallback<Long> {
     }
 
     public enum FLAG {
-        MANUAL, AUTO
+        ABNORMAL, NORMAL
     }
 
     public enum COLOR {

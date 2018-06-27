@@ -18,10 +18,6 @@ public class StartTask extends AsyncTask<Void, Void, Void> {
         this.callback = callback;
     }
 
-    void setCallback(SwitchCallback<Long> callback) {
-        this.callback = callback;
-    }
-
     @Override
     protected void onPreExecute() {
         if (callback == null) {
@@ -44,7 +40,7 @@ public class StartTask extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void noResult) {
         if (callback != null && callback instanceof MainFragment) {
             callback.finishSwitching();
-            ((MainFragment) callback).doChange(MainFragment.FLAG.AUTO);
+            ((MainFragment) callback).doChange(MainFragment.FLAG.NORMAL);
         }
     }
 }

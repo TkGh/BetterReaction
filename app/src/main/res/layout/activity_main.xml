@@ -8,5 +8,9 @@
     <FrameLayout
         android:id="@+id/fragment_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="@color/blue" />
+
+    <include layout="@layout/toolbar_layout" />
 </FrameLayout>

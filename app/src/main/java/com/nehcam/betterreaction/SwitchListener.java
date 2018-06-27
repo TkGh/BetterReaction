@@ -13,6 +13,6 @@ public class SwitchListener implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        callback.doChange(MainFragment.FLAG.MANUAL);
+        callback.doChange(MainFragment.FLAG.ABNORMAL);
     }
 }
