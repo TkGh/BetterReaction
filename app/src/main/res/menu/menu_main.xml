@@ -5,11 +5,10 @@
     <item
         android:id="@+id/action_reset"
         android:title="@string/action_reset"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_history"
-        android:title="@string/action_history"
+        android:title="@string/history_title"
         app:showAsAction="never" />
-
 </menu>

@@ -2,8 +2,12 @@ package com.nehcam.betterreaction.fragments;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,6 +18,7 @@ import com.nehcam.betterreaction.R;
 import com.nehcam.betterreaction.StartTask;
 import com.nehcam.betterreaction.SwitchListener;
 import com.nehcam.betterreaction.interfaces.SwitchCallback;
+import com.nehcam.betterreaction.util.NavigationHelper;
 
 import java.util.Date;
 
@@ -30,13 +35,56 @@ public class MainFragment extends BaseFragment implements SwitchCallback<Long> {
     // Fragment's LifeCycle
     ////////////////////////////////////////////////////////////////////////////////////////////*/
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.main_layout, container, false);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_main, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View rootView, Bundle savedInstanceState) {
+        super.onViewCreated(rootView, savedInstanceState);
         initClickBackground();
+    }
+
+    /*////////////////////////////////////////////////////////////////////////////////////////////
+    // Menu
+    ////////////////////////////////////////////////////////////////////////////////////////////*/
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (DEBUG) {
+            Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu + "], inflater = [" + inflater + "]");
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.menu_main, menu);
+
+        ActionBar actionBar = activity.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (DEBUG) Log.d(TAG, "onOptionsItemSelected() called with: item = [" + item + "]");
+
+        switch (item.getItemId()) {
+            case R.id.action_reset:
+                NavigationHelper.gotoMainFragment(activity.getSupportFragmentManager());
+                return true;
+            case R.id.action_history:
+                NavigationHelper.openHistoryFragment(activity.getSupportFragmentManager());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /*////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +133,8 @@ public class MainFragment extends BaseFragment implements SwitchCallback<Long> {
             } else if (color == getResources().getColor(R.color.green)) {
                 scoreT = new Date().getTime() - startTime;
                 total += scoreT;
-                if (tries++ == 5) ((MainActivity) activity).recordScore(total / tries + "");
+                tries++;
+                if (tries == 5) ((MainActivity) activity).writeScore(total / tries);
 
                 changeUI(MainFragment.COLOR.BLUE, FLAG.NORMAL);
             }

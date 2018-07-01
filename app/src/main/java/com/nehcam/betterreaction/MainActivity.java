@@ -4,14 +4,18 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.nehcam.betterreaction.util.NavigationHelper;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -24,9 +28,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ExecutorService exec;
 
-    FileOutputStream outputStream;
     private String scoreCache = "scoreCache";
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+
+    private static final int BSIZE = 1024;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,39 +49,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (DEBUG) Log.d(TAG, "onCreateOptionsMenu called with: menu = [" + menu + "]");
-
-        super.onCreateOptionsMenu(menu);
-
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.d(TAG, "onOptionsItemSelected() called with: item = [" + item + "]");
-
-        switch (item.getItemId()) {
-            case R.id.action_reset:
-                NavigationHelper.gotoMainFragment(getSupportFragmentManager());
-                return true;
-            case R.id.action_history:
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     private void initFragments() {
         if (DEBUG) Log.d(TAG, "initFragments() called");
 
         NavigationHelper.gotoMainFragment(getSupportFragmentManager());
     }
 
-    public void recordScore(String data) {
+    public void writeScore(Long data) {
         if (DEBUG) Log.d(TAG, "recordScore() called");
 
         Lock wLock = lock.writeLock();
@@ -87,9 +66,13 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     File dir = new File(getFilesDir(), scoreCache);
                     if (!dir.exists()) dir.createNewFile();
-                    outputStream = openFileOutput(scoreCache, Context.MODE_PRIVATE);
-                    outputStream.write((data + "\n").getBytes());
-                    outputStream.close();
+                    DataOutputStream out = new DataOutputStream(
+                            new BufferedOutputStream(
+                                    openFileOutput(scoreCache, Context.MODE_APPEND)));
+
+                    out.writeLong(data);
+
+                    out.close();
                 } catch (IOException e) {
                     if (DEBUG) Log.e(TAG, e.toString());
                 }
@@ -100,18 +83,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void readScore() {
+    public List<Long> readScore() {
         if (DEBUG) Log.d(TAG, "readScore() called");
 
+        List<Long> scores = new ArrayList<>();
         Lock rLock = lock.readLock();
         rLock.lock();
-        if (exec == null) exec = Executors.newFixedThreadPool(2);
         try {
-            exec.execute(() -> {
+            File dir = new File(getFilesDir(), scoreCache);
+            if (dir.exists()) {
+                DataInputStream in = new DataInputStream(
+                        new BufferedInputStream(
+                                openFileInput(scoreCache)));
 
-            });
+                while (in.available() >= 8) {
+                    scores.add(in.readLong());
+                }
+
+                in.close();
+            }
+        } catch (FileNotFoundException FileEx) {
+            if (DEBUG) Log.e(TAG, FileEx.toString());
+        } catch (IOException IOEx) {
+            if (DEBUG) Log.e(TAG, IOEx.toString());
         } finally {
             rLock.unlock();
         }
+
+
+        return scores;
     }
 }
