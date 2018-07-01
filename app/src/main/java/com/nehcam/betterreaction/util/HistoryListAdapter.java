@@ -34,7 +34,10 @@ public class HistoryListAdapter extends RecyclerView.Adapter<HistoryListAdapter.
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        TextView number = holder.view.findViewById(R.id.history_item_num);
         TextView text = holder.view.findViewById(R.id.history_item_score);
+
+        number.setText(String.valueOf(position + 1));
         text.setText(dataSet[position]);
     }
 

@@ -6,13 +6,27 @@
     android:padding="12dp">
 
     <TextView
+        android:id="@+id/history_item_num"
         android:layout_width="wrap_content"
-
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="15dp" />
 
     <TextView
         android:id="@+id/history_item_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/history_item_num"
+        android:layout_marginLeft="20dp"
+        android:layout_toEndOf="@id/history_item_num"
+        android:textColor="@color/text"
         android:textSize="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/history_item_num"
+        android:layout_marginLeft="10dp"
+        android:layout_toEndOf="@id/history_item_score"
+        android:text="ms"
+        android:textSize="15dp" />
 </RelativeLayout>
